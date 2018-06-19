@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="volley_error">Error</string>
+    <string name="apikey"></string>
+    <string name="released">Released:</string>
+
+    <string name="parcel_data">parcel_daa</string>
+
+    <string name="says">says:</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated">Top rated</string>
+    <string name="synopsis">Synopsis:</string>
+    <string name="youtubeurl">http://www.youtube.com/watch?v=</string>
+    <string name="youtubeappstring">vnd.youtube:</string>
+    <string name="ratings">Ratings:</string>
+    <string name="release_date">Release date:</string>
+    <string name="ratings_1">Ratings:</string>
+    <string name="no_favourite_movies">No Favourite Movies!!</string>
+    <string name="favorites">Favorites</string>
+    <string name="popular_sort_mthd">popular</string>
+    <string name="top_rated_sort_mthd">top_rated</string>
+    <string name="saved_instance_movies">saved_movies</string>
+    <string name="pref_sort_method_key">prefsort</string>
+    <string name="favorite_mthd">favorite</string>
+</resources>
