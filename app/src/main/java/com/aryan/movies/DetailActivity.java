@@ -4,16 +4,20 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -29,10 +33,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DetailActivity extends AppCompatActivity {
+    private static final String SAVED_LAYOUT_MANAGER = "savedlayout";
     @BindView(R.id.synopsis_text_view)TextView synopsis_textview;
     @BindView(R.id.place_image)ImageView imageView;
     @BindView(R.id.rating_num_view)TextView rating_text;
-
+    @BindView(R.id.scrollView)NestedScrollView nestedScrollView;
+    @BindView(R.id.appBar)AppBarLayout appBar;
     @BindView(R.id.released_date_view)TextView date_view;
     @BindView(R.id.reviews_recyclerview)RecyclerView review_recyclerview;
     @BindView(R.id.videos_recycler_view)RecyclerView videos_recycler;
@@ -121,7 +127,7 @@ public class DetailActivity extends AppCompatActivity {
                         public void onClick(View view) {
                             FetchMovieRepo.deletemoviebyid(mDb,context,movies);
                             savefab.setImageResource(R.drawable.ic_favorite_border_black_24dp);
-                            finish();
+
                         }
                     });
                 }
@@ -146,6 +152,27 @@ public class DetailActivity extends AppCompatActivity {
             }
         };
         FetchMovieRepo.getVideoDetails(String.valueOf(movies.getId()),getResources().getString(R.string.apikey),onFetchMovieVideos,DetailActivity.this);
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntArray("ARTICLE_SCROLL_POSITION",
+                new int[]{ nestedScrollView.getScrollX(), nestedScrollView.getScrollY()});
+
+    }
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+        appBar.setExpanded(false,true);
+
+        if(position != null)
+
+            nestedScrollView.post(new Runnable() {
+                public void run() {
+                    nestedScrollView.scrollTo(position[0], position[1]);
+                }
+            });
+
     }
 }
 

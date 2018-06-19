@@ -15,11 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.Toast;
-import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,21 +42,17 @@ public class MainActivity extends AppCompatActivity {
         getSortMethod();
         Log.e("Favorite","yes"+getSortMethod());
 
+
         if(savedInstanceState==null&& FetchMovieRepo.isConnected(context)) {
             Log.e("no","fav");
                 fetchmovies(getSortMethod(), context);
-
-
-
-
         }
         else if(savedInstanceState==null&& !FetchMovieRepo.isConnected(context)){
             setupViewModel();
 
         }
         else{
-
-
+            setupViewModel();
             Parcelable[] parcelable = new Parcelable[0];
             if (savedInstanceState != null) {
                 parcelable = savedInstanceState.
@@ -80,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             gridView.setAdapter(new ImageAdapter(this, save));
-
-
         }
 
 
@@ -117,17 +107,24 @@ public class MainActivity extends AppCompatActivity {
             case R.id.popularMovies_menu_item:
                 updateSharedPrefs(getString(R.string.popular_sort_mthd));
 
+
                 fetchmovies(getSortMethod(), context);
+                updateSharedPrefs1(0);
 
                 break;
             case R.id.highest_rated_menu_item:
+
                 updateSharedPrefs(getString(R.string.top_rated_sort_mthd));
                 fetchmovies(getSortMethod(), context);
+                updateSharedPrefs1(0);
 
 
                 break;
             case R.id.favorites_menu_item:
+                updateSharedPrefs1(1);
                 setupViewModel();
+                removeviewmodel();
+
 
         }
         return super.onOptionsItemSelected(item);
@@ -136,36 +133,17 @@ public class MainActivity extends AppCompatActivity {
         onFetchTaskCompleted onFetchTaskCompleted = new onFetchTaskCompleted() {
             @Override
             public void onFetchMoviesTaskCompleted(List<Movies> movies) {
-                imageAdapter = new ImageAdapter(context,movies);
-                imageAdapter.notifyDataSetChanged();
-                gridView.setAdapter(imageAdapter);
+                populateui(movies);
             }
         };
         FetchMovieRepo.fetchMovieDetails(getSortedUrl(sortmethod),onFetchTaskCompleted,MainActivity.this);
     }
-    public void getSaved(final Context context){
-        onFetchFavorite onFetchFavorite = new onFetchFavorite() {
-            @Override
-            public void onFetchFavorite(List<Movies> movies) {
 
-                imageAdapter = new ImageAdapter(context,movies);
-                imageAdapter.notifyDataSetChanged();
-                gridView.setAdapter(imageAdapter);
-
-            }
-        };
-        FetchMovieRepo.loadallmovies(context,onFetchFavorite,MainActivity.this);
-
-
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //Log.v(LOG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
-
-
-
         int numMovieObjects = gridView.getCount();
         if (numMovieObjects > 0) {
             Movies[] MoviePojo = new Movies[numMovieObjects];
@@ -179,14 +157,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void setupViewModel() {
+
         final MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         viewModel.getMovie_saved().observe(this, new Observer<List<Movies>>() {
             @Override
             public void onChanged(@Nullable List<Movies> moviePojos) {
 
-                ImageAdapter imageAda = new ImageAdapter(context,moviePojos);
-                imageAda.notifyDataSetChanged();
-                gridView.setAdapter(imageAda);
+                if(getSortMethod1()==1) {
+                    populateui(moviePojos);
+                }
+
 
 
 
@@ -194,10 +174,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private void populateui(@Nullable List<Movies> moviePojos) {
+        ImageAdapter imageAda = new ImageAdapter(context,moviePojos);
+        imageAda.notifyDataSetChanged();
+        gridView.setAdapter(imageAda);
+    }
+
     private void updateSharedPrefs(String sortMethod) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.pref_sort_method_key), sortMethod);
+        editor.apply();
+    }
+    private void updateSharedPrefs1(int sortMethod) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(getString(R.string.pref_sort_method_fav), sortMethod);
         editor.apply();
     }
     private String getSortMethod() {
@@ -205,6 +198,24 @@ public class MainActivity extends AppCompatActivity {
 
         return prefs.getString(getString(R.string.pref_sort_method_key),
                 "popular");
+    }
+    private int getSortMethod1() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        return prefs.getInt(getString(R.string.pref_sort_method_fav),0);
+    }
+    public void removeviewmodel(){
+        final MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getMovie_saved().observe(this, new Observer<List<Movies>>() {
+            @Override
+            public void onChanged(@Nullable List<Movies> moviePojos) {
+
+                viewModel.getMovie_saved().removeObserver(this);
+
+
+
+            }
+        });
     }
 
 

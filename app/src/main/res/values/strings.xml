@@ -22,4 +22,5 @@
     <string name="saved_instance_movies">saved_movies</string>
     <string name="pref_sort_method_key">prefsort</string>
     <string name="favorite_mthd">favorite</string>
+    <string name="pref_sort_method_fav">favkey</string>
 </resources>
