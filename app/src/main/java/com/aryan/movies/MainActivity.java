@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 Movies movies = (Movies) adapterView.getItemAtPosition(i);
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
                 intent.putExtra("parcel", movies);
-                intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+
                 startActivity(intent);
             }
         });
